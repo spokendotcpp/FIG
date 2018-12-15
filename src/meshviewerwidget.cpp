@@ -155,7 +155,7 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
-        cloud = new Cloud(0.5f, 1.0f, 1.0f, 10000);
+        cloud = new Cloud(0.5f, 1.0f, 1.0f, 10000, Shape::Ellipsoid);
         cloud->build(program);
         cloud->use_unique_color(1.0f, 1.0f, 0.0f);
         cloud->rotate(45, 0, 0, 1); // Rotate our cloud by 45° on Z
@@ -194,7 +194,7 @@ MeshViewerWidget::paintGL()
 {
     long mcs = MeshViewerWidget::microseconds_diff(Clock::now(), lap);
 
-    if( mcs < frequency ){
+    if( mcs < (frequency-300) ){
         std::this_thread::sleep_for(
             std::chrono::microseconds(frequency - mcs)
         );
