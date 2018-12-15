@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent):
     ui->setupUi(this);
     ui->viewer->set_frames_per_second(60);
 
-    this->setWindowTitle("Field generation");
+    this->setWindowTitle("Clouds");
     this->resize(1280, 720);
     this->center();
 

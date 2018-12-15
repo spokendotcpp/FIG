@@ -23,6 +23,7 @@
 #include "axis.h"
 #include "light.h"
 #include "arcball.h"
+#include "cloud.h"
 
 typedef std::chrono::steady_clock Clock;
 
@@ -35,7 +36,7 @@ class MeshViewerWidget: public QOpenGLWidget
     Q_OBJECT
 /* Private members */
 private:
-    //ShaderProgram* program; // Shader program
+    /* GLSL Shaders */
     QOpenGLShaderProgram* program;
 
     /* Matrix which compose our Model View Projection Matrix -- uniform values */
@@ -65,6 +66,7 @@ private:
     Light* light;
     ArcBall* arcball;
     Axis* axis;
+    Cloud* cloud;
 
     // DISPLAY METHODS
     bool wireframe_on;

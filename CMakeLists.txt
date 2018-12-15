@@ -37,6 +37,7 @@ set(SOURCES
     src/axis.cpp
     src/light.cpp
     src/arcball.cpp
+    src/cloud.cpp
 )
 
 # HEADERS FILES
@@ -47,6 +48,7 @@ set(HEADERS
     include/axis.h
     include/light.h
     include/arcball.h
+    include/cloud.h
 )
 
 set(UI_FORMS

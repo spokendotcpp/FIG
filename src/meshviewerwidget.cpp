@@ -26,6 +26,7 @@ MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     arcball = nullptr;
     light = nullptr;
     axis = nullptr;
+    cloud = nullptr;
 }
 
 /*
@@ -55,6 +56,11 @@ MeshViewerWidget::~MeshViewerWidget()
     if( axis != nullptr ){
         delete axis;
         axis = nullptr;
+    }
+
+    if( cloud != nullptr ){
+        delete cloud;
+        cloud = nullptr;
     }
 }
 
@@ -149,11 +155,17 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
+        cloud = new Cloud(0.5f, 1.0f, 1.0f, 10000);
+        cloud->build(program);
+        cloud->use_unique_color(1.0f, 1.0f, 0.0f);
+        cloud->rotate(45, 0, 0, 1); // Rotate our cloud by 45° on Z
+        cloud->update_buffers(program);
+
         program->setUniformValue("wireframe_color", QVector3D(1.0f, 0.0f, 0.0f));
     }
     program->release();
 
-    glClearColor(1.0f, 191.0f/255.0f, 179.0f/255.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
@@ -202,8 +214,15 @@ MeshViewerWidget::paintGL()
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
-        // draw axis
         light->off(program);
+        // draw cloud points
+        //glPointSize(10);
+        program->setUniformValue("model", cloud->model_matrix());
+        program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
+        cloud->show(GL_POINTS);
+        //glPointSize(1);
+
+        // draw axis
         program->setUniformValue("model", axis->model_matrix());
         axis->show(GL_LINES);
         light->on(program);
@@ -269,7 +288,6 @@ void
 MeshViewerWidget::timerEvent(QTimerEvent* event)
 {
     int id = event->timerId();
-
     if( id == timer_id_0 ){
         update();
     }
@@ -283,7 +301,8 @@ void
 MeshViewerWidget::wheelEvent(QWheelEvent* event)
 {
     float z = position.z();
-    float step = 0.1f;
+    float step = 0.001f * event->delta();
+    if( step < 0 ) step *= -1.0f;
 
     /* Wheel go down */
     if( event->delta() < 0 ){
