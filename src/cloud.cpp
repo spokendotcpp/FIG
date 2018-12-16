@@ -4,54 +4,78 @@
 #include <iostream>
 #include "../include/cloud.h"
 
-Cloud::Cloud(float _a, float _b, float _c, size_t pts, Shape shape=Ellipsoid):
-    a(_a), b(_b), c(_c), npoints(pts)
+Cloud::Cloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
+    Ox(_Ox), Oy(_Oy), Oz(_Oz), total_points(_total_points), dmin(_dmin)
 {
-    if( a < 0.0f ) a = 1.0f;
-    if( b < 0.0f ) b = 1.0f;
-    if( c < 0.0f ) c = 1.0f;
-
-    // Choose what kind of function we are going tu use
-    // to test if points are into the desired shape.
-    switch( shape ){
-    default: into_test = &Cloud::into_Ellipsoid;
-    }
+    if( dmin < 0.0f ) dmin = 0.001f;
+    if( Ox < 0.0f )   Ox   = 1.0f;
+    if( Oy < 0.0f )   Oy   = 1.0f;
+    if( Oz < 0.0f )   Oz   = 1.0f;
 }
 
 Cloud::~Cloud()
-{}
+{
+    into_points.clear();
+}
 
 bool
 Cloud::build(QOpenGLShaderProgram* program)
 {
-    GLfloat* positions = new GLfloat[npoints * 3];
-    GLuint* indices = new GLuint[npoints];
-
     // BUILD CLOUD
     std::random_device rd;
     std::default_random_engine re(rd());
 
-    std::uniform_real_distribution<float> Ox{-a, a};
-    std::uniform_real_distribution<float> Oy{-b, b};
-    std::uniform_real_distribution<float> Oz{-c, c};
+    // Generators
+    std::uniform_real_distribution<float> xgen{-Ox, Ox};
+    std::uniform_real_distribution<float> ygen{-Oy, Oy};
+    std::uniform_real_distribution<float> zgen{-Oz, Oz};
 
-    for(size_t i=0; i < npoints; ++i){
+    // Prepare deque to receive information
+    into_points.clear();
 
-        bool into = false;
-        while( !into ){
-            float x = Ox(re);
-            float y = Oy(re);
-            float z = Oz(re);
+    for(size_t i=0; i < total_points; ++i){
+        float x = xgen(re);
+        float y = ygen(re);
+        float z = zgen(re);
 
-            // Maths from https://en.wikipedia.org/wiki/Ellipsoid
-            if( (this->*into_test)(x, y, z) ){
-                positions[(i*3)+0] = x;
-                positions[(i*3)+1] = y;
-                positions[(i*3)+2] = z;
-                into = true;
+        // Maths from https://en.wikipedia.org/wiki/Ellipsoid
+        if( into(x, y, z) ){
+            bool distance_ok = true;
+
+            for(size_t j=0; j < into_points.size(); j+=3){
+
+                float dist = distance(
+                    x, y, z,
+                    into_points[j+0],
+                    into_points[j+1],
+                    into_points[j+2]
+                );
+
+                if( dist <= dmin ){
+                    distance_ok = false;
+                    break;
+                }
+            }
+
+            if( distance_ok ){
+                into_points.push_back(x);
+                into_points.push_back(y);
+                into_points.push_back(z);
             }
         }
+    }
 
+    // Once we have all the correct points into our shape.
+    // Build datas
+    size_t npoints = into_points.size()/3;
+    GLfloat* positions = new GLfloat[npoints*3];
+    GLuint* indices = new GLuint[npoints];
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        positions[idx+0] = into_points[idx+0];
+        positions[idx+1] = into_points[idx+1];
+        positions[idx+2] = into_points[idx+2];
         indices[i] = GLuint(i);
     }
 
@@ -65,10 +89,32 @@ Cloud::build(QOpenGLShaderProgram* program)
     return initialize(npoints, npoints, 3);
 }
 
+// Naive test
 bool
-Cloud::into_Ellipsoid(float x, float y, float z)
+Cloud::into(float x, float y, float z)
 {
-    return (((x*x)/(a*a)) + ((y*y)/(b*b)) + ((z*z)/(c*c))) <= 1.0f;
+    return (  (x >= -Ox && x <= Ox)
+           && (y >= -Oy && y <= Oy)
+           && (z >= -Oz && z <= Oz) );
+}
+
+// Compute euclidean distance between two 3D points.
+float
+Cloud::distance(float x, float y, float z, float xx, float yy, float zz)
+{
+    return std::sqrt(std::pow(xx-x, 2.0f) + std::pow(yy-y, 2.0f) + std::pow(zz-z, 2.0f));
+}
+
+
+// ELLIPSOID CLOUD CLASS
+EllipsoidCloud::EllipsoidCloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
+    Cloud(_Ox, _Oy, _Oz, _total_points, _dmin)
+{}
+
+bool
+EllipsoidCloud::into(float x, float y, float z)
+{
+    return (((x*x)/(Ox*Ox)) + ((y*y)/(Oy*Oy)) + ((z*z)/(Oz*Oz))) <= 1.0f;
 }
 
 #endif // CLOUD_CPP

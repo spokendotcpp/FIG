@@ -1,33 +1,36 @@
 #ifndef CLOUD_H
 #define CLOUD_H
 
-/*
- * Draw an Ellipsoid cloud
- */
-
 #include <random>
+#include <deque>
 #include "drawableobject.h"
 
-enum Shape {
-    Ellipsoid,
-};
-
 class Cloud : public DrawableObject {
-private:
-    float a, b, c;
-    size_t npoints;
-
-    // Tricky: choose a function for the "into" test
-    // Which depends of the desired shape
-    typedef bool(Cloud::*Into)(float x, float y, float z);
-    Into into_test;
-
-    bool into_Ellipsoid(float x, float y, float z);
+protected:
+    float Ox, Oy, Oz;
+    size_t total_points;
+    float dmin;
+    std::deque<float> into_points;
 
 public:
-    Cloud(float a, float b, float c, size_t npoints, Shape shape);
+    Cloud(float Ox, float Oy, float Oz, size_t pts, float dmin=0.001f);
     ~Cloud() override;
     bool build(QOpenGLShaderProgram* program) override;
+
+    /* virtual function, can be redifined into child class */
+    virtual
+    bool into(float x, float y, float z);
+
+    /* Static functions */
+    static
+    float distance(float x, float y, float z, float xx, float yy, float zz);
+};
+
+class EllipsoidCloud : public Cloud
+{
+public:
+    EllipsoidCloud(float Ox, float Oy, float Oz, size_t pts, float dmin=0.001f);
+    bool into(float x, float y, float z) override;
 };
 
 #endif // CLOUD_H
