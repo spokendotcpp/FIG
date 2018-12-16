@@ -155,8 +155,15 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
-        cloud = new EllipsoidCloud(1.0f, 0.6f, 0.3f, 1000, 0.1f);
+        cloud = new EllipsoidCloud(1.0f, 0.5f, 0.4f, 5000, 0.001f);
         cloud->build(program);
+
+        QVector3D gcenter = cloud->compute_gravity_center();
+        std::cerr <<
+            gcenter[0] << ", " <<
+            gcenter[1] << ", " <<
+            gcenter[2] << std::endl;
+
         cloud->use_unique_color(1.0f, 1.0f, 0.0f);
         cloud->rotate(45, 0, 0, 1); // Rotate our cloud by 45° on Z
         cloud->update_buffers(program);

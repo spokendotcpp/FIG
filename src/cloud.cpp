@@ -38,7 +38,6 @@ Cloud::build(QOpenGLShaderProgram* program)
         float y = ygen(re);
         float z = zgen(re);
 
-        // Maths from https://en.wikipedia.org/wiki/Ellipsoid
         if( into(x, y, z) ){
             bool distance_ok = true;
 
@@ -89,6 +88,23 @@ Cloud::build(QOpenGLShaderProgram* program)
     return initialize(npoints, npoints, 3);
 }
 
+
+QVector3D
+Cloud::compute_gravity_center() const
+{
+    QVector3D gcenter(0.0f, 0.0f, 0.0f);
+    size_t npoints = into_points.size()/3;
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        gcenter.setX(gcenter.x() + into_points[idx+0]);
+        gcenter.setY(gcenter.y() + into_points[idx+1]);
+        gcenter.setZ(gcenter.z() + into_points[idx+2]);
+    }
+
+    return gcenter/npoints;
+}
+
 // Naive test
 bool
 Cloud::into(float x, float y, float z)
@@ -111,6 +127,7 @@ EllipsoidCloud::EllipsoidCloud(float _Ox, float _Oy, float _Oz, size_t _total_po
     Cloud(_Ox, _Oy, _Oz, _total_points, _dmin)
 {}
 
+// Maths from https://en.wikipedia.org/wiki/Ellipsoid
 bool
 EllipsoidCloud::into(float x, float y, float z)
 {

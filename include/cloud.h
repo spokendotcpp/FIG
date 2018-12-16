@@ -17,6 +17,9 @@ public:
     ~Cloud() override;
     bool build(QOpenGLShaderProgram* program) override;
 
+    /* Returns the gravity center */
+    QVector3D compute_gravity_center() const;
+
     /* virtual function, can be redifined into child class */
     virtual
     bool into(float x, float y, float z);
