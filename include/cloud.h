@@ -20,13 +20,23 @@ public:
     /* Returns the gravity center */
     QVector3D compute_gravity_center() const;
 
-    /* virtual function, can be redifined into child class */
+    /* Returns the into_points minus cloud gravity center */
+    std::deque<float> compute_deviations() const;
+
+    /* Correlation matrix tB * B = C */
+    std::deque<float> compute_correlation_matrix() const;
+
+    /* Virtual function, can be redifined into child class */
     virtual
     bool into(float x, float y, float z);
 
     /* Static functions */
     static
     float distance(float x, float y, float z, float xx, float yy, float zz);
+
+    /* Inline functions */
+    inline
+    size_t points_into_cloud() const { return into_points.size()/3; }
 };
 
 class EllipsoidCloud : public Cloud

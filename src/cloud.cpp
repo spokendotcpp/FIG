@@ -40,9 +40,7 @@ Cloud::build(QOpenGLShaderProgram* program)
 
         if( into(x, y, z) ){
             bool distance_ok = true;
-
             for(size_t j=0; j < into_points.size(); j+=3){
-
                 float dist = distance(
                     x, y, z,
                     into_points[j+0],
@@ -88,7 +86,6 @@ Cloud::build(QOpenGLShaderProgram* program)
     return initialize(npoints, npoints, 3);
 }
 
-
 QVector3D
 Cloud::compute_gravity_center() const
 {
@@ -97,12 +94,75 @@ Cloud::compute_gravity_center() const
 
     for(size_t i=0; i < npoints; ++i){
         size_t idx = (i*3);
-        gcenter.setX(gcenter.x() + into_points[idx+0]);
-        gcenter.setY(gcenter.y() + into_points[idx+1]);
-        gcenter.setZ(gcenter.z() + into_points[idx+2]);
+        gcenter += QVector3D(
+            into_points[idx+0],
+            into_points[idx+1],
+            into_points[idx+2]
+        );
     }
 
-    return gcenter/npoints;
+    return gcenter/float(npoints);
+}
+
+std::deque<float>
+Cloud::compute_deviations() const
+{
+    std::deque<float> deviations(into_points.size());
+    QVector3D gcenter = compute_gravity_center();
+    size_t npoints = points_into_cloud();
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        deviations[idx+0] = into_points[idx+0] - gcenter.x();
+        deviations[idx+1] = into_points[idx+1] - gcenter.y();
+        deviations[idx+2] = into_points[idx+2] - gcenter.z();
+    }
+
+    return deviations;
+}
+
+std::deque<float>
+Cloud::compute_correlation_matrix() const
+{
+    std::deque<float> deviations = compute_deviations();
+    size_t npoints = points_into_cloud();
+
+    //          | x0, y0, z0 |
+    // matrix   | x1, y1, z1 |
+    //          | x2, y2, z2 |
+    //
+    //          | x0, x1, x2 |
+    // t_matrix | y0, y1, y2 |
+    //          | z0, z1, z2 |
+    std::deque<std::deque<float>> matrix(npoints);
+
+    std::deque<std::deque<float>> t_matrix(3);
+    t_matrix[0] = std::deque<float>(npoints); // x
+    t_matrix[1] = std::deque<float>(npoints); // y
+    t_matrix[2] = std::deque<float>(npoints); // z
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        matrix[i] = std::deque<float>(3);
+        matrix[i][0] = t_matrix[0][i] = deviations[idx+0];
+        matrix[i][1] = t_matrix[1][i] = deviations[idx+1];
+        matrix[i][2] = t_matrix[2][i] = deviations[idx+2];
+    }
+
+    std::cerr << matrix.size() << " " << t_matrix[0].size() << std::endl;
+
+    // Correlation matrix (out)[3*3] = t_matrix[3*npts] * matrix[npts*3];
+    std::deque<float> out(9);
+    for(size_t i=0; i < 3; ++i){
+        for(size_t j=0; j < 3; ++j){
+            out[(i*3)+j] = 0.0f;
+            for(size_t h=0; h < npoints; ++h){
+                out[(i*3)+j] += (t_matrix[i][h] * matrix[h][j]);
+            }
+        }
+    }
+
+    return out;
 }
 
 // Naive test
@@ -118,7 +178,10 @@ Cloud::into(float x, float y, float z)
 float
 Cloud::distance(float x, float y, float z, float xx, float yy, float zz)
 {
-    return std::sqrt(std::pow(xx-x, 2.0f) + std::pow(yy-y, 2.0f) + std::pow(zz-z, 2.0f));
+    return std::sqrt(
+                std::pow(xx-x, 2.0f) +
+                std::pow(yy-y, 2.0f) +
+                std::pow(zz-z, 2.0f));
 }
 
 
