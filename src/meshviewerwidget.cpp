@@ -5,6 +5,8 @@
 #include "../include/meshviewerwidget.h"
 #include "../include/mainwindow.h"
 
+
+
 MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     :QOpenGLWidget(parent)
 {
@@ -348,7 +350,37 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
         update_view();
         break;
 
+    case Qt::Key_A :
+        increaseXValue();
+        cloud->build(program);
+        cloud->update_buffers(program);
+
+
+        std::cerr << "a =  " << cloud->a << std::endl;
+
+        break;
+
+    case Qt::Key_B :
+        increaseYValue();
+        break;
+
+    case Qt::Key_C :
+        increaseZValue();
+        break;
+
+    case Qt::Key_Z :
+        decreaseXValue();
+        break;
+
+    case Qt::Key_N :
+        decreaseYValue();
+        break;
+
     case Qt::Key_V :
+        decreaseZValue();
+        break;
+
+    case Qt::Key_I :
         default_view();
         update_view();
         break;
@@ -425,6 +457,51 @@ MeshViewerWidget::display_fill(bool mode)
     fill_on = mode;
     update();
 }
+
+void
+MeshViewerWidget::increaseXValue(){
+    cloud->a += 0.5f;
+    update();
+
+}
+
+
+void
+MeshViewerWidget::decreaseXValue(){
+    cloud->a -= 0.5f;
+    update();
+
+}
+
+void
+MeshViewerWidget::increaseYValue(){
+    cloud->b += 0.5f;
+    update();
+}
+
+void
+MeshViewerWidget::decreaseYValue(){
+    cloud->b -= 0.5f;
+    update();
+}
+
+
+void
+MeshViewerWidget::increaseZValue(){
+    cloud->c += 0.5f;
+    update();
+}
+
+void
+MeshViewerWidget::decreaseZValue(){
+    cloud->c -= 0.5f;
+    update();
+}
+
+
+
+
+
 
 void
 MeshViewerWidget::reset_view()

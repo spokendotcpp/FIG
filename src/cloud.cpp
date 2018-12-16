@@ -59,4 +59,5 @@ Cloud::build(QOpenGLShaderProgram* program)
     return initialize(npoints, npoints, 3);
 }
 
+
 #endif // CLOUD_CPP

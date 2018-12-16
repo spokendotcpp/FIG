@@ -16,6 +16,7 @@
 #include <QGroupBox>
 #include <QMenuBar>
 #include <QPushButton>
+#include <QSpinBox>
 
 #include "ui_mainwindow.h"
 
@@ -24,6 +25,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     Ui::MainWindow* ui;
+    QSpinBox spinBoxP;
+    QSpinBox spinBoxA;
+    QSpinBox spinBoxB;
+    QSpinBox spinBoxC;
 
 public:
     MainWindow(QWidget *parent=nullptr);
@@ -32,6 +37,7 @@ public:
     void center();
     void keyPressEvent(QKeyEvent*) override;
     void timerEvent(QTimerEvent* event) override;
+    void horizontalSliderEvent();
 
 private:
     void connect_signals_and_slots();

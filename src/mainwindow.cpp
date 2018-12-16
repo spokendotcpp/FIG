@@ -8,6 +8,11 @@ MainWindow::MainWindow(QWidget *parent):
 {
     ui->setupUi(this);
     ui->viewer->set_frames_per_second(60);
+//    ui->label->setText(QString::number(cloud.npoints) + "points");
+//    ui->label_2->setText(QString::number(cloud.a) + " = a");
+//    ui->label_3->setText(QString::number(cloud.b) + " = b");
+//    ui->label_4->setText(QString::number(cloud.c) + " = c");
+
 
     this->setWindowTitle("Clouds");
     this->resize(1280, 720);
@@ -54,9 +59,13 @@ MainWindow::timerEvent(QTimerEvent*)
     ui->viewer->reset_computed_frames();
 }
 
+
+
 void
 MainWindow::connect_signals_and_slots()
 {
     // QUIT APP
     connect(ui->actionExit, &QAction::triggered, this, &QMainWindow::close);
 }
+
+

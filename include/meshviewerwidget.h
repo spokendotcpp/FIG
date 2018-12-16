@@ -125,6 +125,26 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
+    /* increase value of Ox */
+    void increaseXValue();
+
+    /* decrease value of Ox */
+    void decreaseXValue();
+
+    /* increase value of Oy */
+    void increaseYValue();
+
+    /* decrease value of Oy */
+    void decreaseYValue();
+
+    /* increase value of Oz */
+    void increaseZValue();
+
+    /* decrease value of Oz */
+    void decreaseZValue();
+
+
+
     /* *********************************************** */
     /* STATIC METHODS */
     /* Difference between two high resolution clock time point as microseconds */
