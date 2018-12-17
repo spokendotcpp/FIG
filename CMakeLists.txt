@@ -63,6 +63,11 @@ add_executable(
     ${UI_FORMS}
 )
 
+target_link_directories(
+    ${exe_name} PUBLIC
+    Eigen/
+)
+
 # -l
 target_link_libraries(
     ${exe_name} PUBLIC

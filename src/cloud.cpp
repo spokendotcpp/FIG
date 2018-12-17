@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include "../include/cloud.h"
+#include <Eigen/Dense>
+
+using Eigen::MatrixXd;
 
 Cloud::Cloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
     Ox(_Ox), Oy(_Oy), Oz(_Oz), total_points(_total_points), dmin(_dmin)
@@ -177,8 +180,6 @@ Cloud::compute_correlation_matrix() const
     return out;
 }
 
-
-
 // Compute determinant of a matrix (3x3)
 float
 Cloud::compute_determinant(const std::deque<float>& mat)
@@ -267,7 +268,6 @@ Cloud::distance(float x, float y, float z, float xx, float yy, float zz)
                 std::pow(zz-z, 2.0f));
 }
 
-
 // ELLIPSOID CLOUD CLASS
 EllipsoidCloud::EllipsoidCloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
     Cloud(_Ox, _Oy, _Oz, _total_points, _dmin)
@@ -279,6 +279,5 @@ EllipsoidCloud::into(float x, float y, float z)
 {
     return (((x*x)/(Ox*Ox)) + ((y*y)/(Oy*Oy)) + ((z*z)/(Oz*Oz))) <= 1.0f;
 }
-
 
 #endif // CLOUD_CPP
