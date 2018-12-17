@@ -127,45 +127,9 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
-
-    /* INLINE FUNCTIONS */
-    inline
-    const Cloud* get_cloud() const
-    {
-        return cloud;
-    }
-
-    inline
-    void set_cloud(Cloud* c)
-    {
-        if( cloud != nullptr )
-            delete cloud;
-
-        cloud = c;
-
-        makeCurrent();
-        program->bind();
-
-        cloud->build(program);
-        cloud->use_unique_color(1.0f, 1.0f, 0.0f);
-        cloud->update_buffers(program);
-
-        std::cerr << " ________________________ " << std::endl;
-        std::deque<float> inertia = cloud->compute_correlation_matrix();
-        for(size_t i=0; i < inertia.size(); ++i){
-            std::cerr << inertia[i] << ", ";
-            if( (i+1)%3 == 0 )
-                std::cerr << std::endl;
-        }
-
-        std::cerr << "determinant : " << cloud->compute_determinant(inertia) << std::endl;
-
-        program->release();
-        doneCurrent();
-        update();
-    }
+    const Cloud* get_cloud() const;
+    void set_cloud(Cloud* c);
     /* ________________ */
-
 
     /* *********************************************** */
     /* STATIC METHODS */

@@ -179,25 +179,74 @@ Cloud::compute_correlation_matrix() const
 
 
 
-// Compute determinant of a matrix
-
+// Compute determinant of a matrix (3x3)
 float
-Cloud::compute_determinant(const std::deque<float>& mat) const
-
+Cloud::compute_determinant(const std::deque<float>& mat)
 {
     if(mat.size() != 9)
         return 0;
 
-
-
-    return mat[0]*(mat[4]*mat[8] - mat[5]*mat[7])
-               - mat[1]*(mat[3]*mat[8] - mat[6]*mat[7])
-               + mat[2]*(mat[3]*mat[7] - mat[4]*mat[6]);
-
-
+    return + mat[0]*((mat[4]*mat[8]) - (mat[5]*mat[7]))
+           - mat[1]*((mat[3]*mat[8]) - (mat[5]*mat[6]))
+           + mat[2]*((mat[3]*mat[7]) - (mat[4]*mat[6]));
 }
 
+//https://en.wikipedia.org/wiki/Eigenvalue_algorithm#3%C3%973_matrices
+std::deque<float>
+Cloud::eigenvalues(const std::deque<float>& matrix)
+{
+    std::deque<float> eigenvalues(3);
+    if( matrix.size() == 9 ){
+        float r0 = (matrix[1]*matrix[1]) +
+                   (matrix[2]*matrix[2]) +
+                   (matrix[5]*matrix[5]);
 
+        if( r0 == 0.0f ){
+            eigenvalues[0] = matrix[0];
+            eigenvalues[1] = matrix[4];
+            eigenvalues[2] = matrix[8];
+        }
+        else {
+            float q = (matrix[0] + matrix[4] + matrix[8])/3;
+            float r1 = (
+                std::pow(matrix[0] - q, 2.0f) +
+                std::pow(matrix[4] - q, 2.0f) +
+                std::pow(matrix[8] - q, 2.0f) +
+                2 * r0
+            );
+
+            float p = std::sqrt(r1/6);
+            std::deque<float> A_minus_LambdaI = matrix;
+            A_minus_LambdaI[0] -= q;
+            A_minus_LambdaI[4] -= q;
+            A_minus_LambdaI[8] -= q;
+
+            for(size_t i = 0; i < 9; ++i)
+                A_minus_LambdaI[i] *= (1/p);
+
+            float det = Cloud::compute_determinant(A_minus_LambdaI)/2.0f;
+            float phi;
+            const float PI = std::atan(1.0f) * 4.0f;
+
+            if( det <= -1 ){
+                phi = PI / 3.0f;
+            }
+            else
+            if( det >= 1 ){
+                phi = 0.0f;
+            }
+            else {
+                phi = std::acos(det) / 3.0f;
+            }
+
+            eigenvalues[0] = q + 2 * p * std::cos(phi);
+            eigenvalues[2] = q + 2 * p * std::cos(phi + (2*PI/3));
+            eigenvalues[1] = 3 * q - eigenvalues[0] - eigenvalues[2];
+        }
+    }
+
+    return eigenvalues;
+}
 
 // Naive test
 bool

@@ -5,8 +5,6 @@
 #include "../include/meshviewerwidget.h"
 #include "../include/mainwindow.h"
 
-
-
 MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     :QOpenGLWidget(parent)
 {
@@ -349,8 +347,6 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
         update_view();
         break;
 
-
-
     case Qt::Key_V :
         default_view();
         update_view();
@@ -429,15 +425,49 @@ MeshViewerWidget::display_fill(bool mode)
     update();
 }
 
-
-
-
-
-
 void
 MeshViewerWidget::reset_view()
 {
     default_view();
     update_view();
+    update();
+}
+
+const Cloud*
+MeshViewerWidget::get_cloud() const
+{
+    return cloud;
+}
+
+void
+MeshViewerWidget::set_cloud(Cloud* c)
+{
+    if( cloud != nullptr )
+        delete cloud;
+
+    cloud = c;
+
+    makeCurrent();
+    program->bind();
+
+    cloud->build(program);
+    cloud->use_unique_color(1.0f, 1.0f, 0.0f);
+    cloud->update_buffers(program);
+
+    std::cerr << " ________________________ " << std::endl;
+    std::deque<float> inertia = cloud->compute_correlation_matrix();
+    for(size_t i=0; i < inertia.size(); ++i){
+        std::cerr << inertia[i] << ", ";
+        if( (i+1)%3 == 0 )
+            std::cerr << std::endl;
+    }
+
+    std::cerr << "determinant : " << Cloud::compute_determinant(inertia) << std::endl;
+    std::deque<float> eigenvalues = Cloud::eigenvalues(inertia);
+
+    std::cerr << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2] << std::endl;
+
+    program->release();
+    doneCurrent();
     update();
 }

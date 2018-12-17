@@ -27,15 +27,22 @@ public:
     /* Correlation matrix tB * B = C */
     std::deque<float> compute_correlation_matrix() const;
 
-    float compute_determinant(const std::deque<float>&) const;
-
     /* Virtual function, can be redifined into child class */
     virtual
     bool into(float x, float y, float z);
 
     /* Static functions */
+    /* Euclidean distance between two 3D points */
     static
     float distance(float x, float y, float z, float xx, float yy, float zz);
+
+    /* Determinant of a 3x3 matrix */
+    static
+    float compute_determinant(const std::deque<float>& mat3x3);
+
+    /* Egeins values of a 3x3 matrix */
+    static
+    std::deque<float> eigenvalues(const std::deque<float>& mat3x3);
 
     /* Inline functions */
     inline

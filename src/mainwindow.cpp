@@ -4,9 +4,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent), ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
-
-    ui->viewer->set_frames_per_second(24);
-
+    ui->viewer->set_frames_per_second(60);
 
     this->setWindowTitle("Clouds");
     this->resize(1280, 720);
@@ -59,19 +57,16 @@ MainWindow::timerEvent(QTimerEvent*)
     ui->viewer->reset_computed_frames();
 }
 
-
-
 void
 MainWindow::connect_signals_and_slots()
 {
     // QUIT APP
     connect(ui->actionQuit, &QAction::triggered, this, &QMainWindow::close);
-    connect(ui->button_build, &QPushButton::pressed, this, &MainWindow::on_button_build_pressed);
+    connect(ui->button_build, &QPushButton::toggled, this, &MainWindow::on_button_build_pressed);
     connect(ui->action_reset_view, &QAction::triggered, this->ui->viewer, &MeshViewerWidget::reset_view);
 }
 
-void
-MainWindow::on_button_build_pressed()
+void MainWindow::on_button_build_pressed()
 {
     Cloud* cloud = new EllipsoidCloud(
         float(ui->spinbox_ox->value()),
@@ -96,5 +91,3 @@ MainWindow::on_button_build_pressed()
     ui->viewer->set_cloud(cloud);
     ui->spinbox_drawn_pts->setValue(int(cloud->points_into_cloud()));
 }
-
-
