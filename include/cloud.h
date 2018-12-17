@@ -4,9 +4,15 @@
 #include <random>
 #include <deque>
 #include "drawableobject.h"
+#include "axis.h"
+
+#include <Eigen/Eigenvalues>
+#include <Eigen/Dense>
+
+using Eigen::MatrixXf;
+using Eigen::EigenSolver;
 
 class Cloud : public DrawableObject {
-
 protected:
     float Ox, Oy, Oz;
     size_t total_points;
@@ -25,7 +31,10 @@ public:
     std::deque<float> compute_deviations() const;
 
     /* Correlation matrix tB * B = C */
-    std::deque<float> compute_correlation_matrix() const;
+    MatrixXf compute_correlation_matrix() const;
+
+    /* Draw eigen vectors */
+    Axis* compute_axis() const;
 
     /* Virtual function, can be redifined into child class */
     virtual
@@ -54,7 +63,6 @@ class EllipsoidCloud : public Cloud
 public:
     EllipsoidCloud(float Ox, float Oy, float Oz, size_t pts, float dmin=0.001f);
     bool into(float x, float y, float z) override;
-
 };
 
 #endif // CLOUD_H

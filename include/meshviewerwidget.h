@@ -69,8 +69,10 @@ private:
     ArcBall* arcball;
     Axis* axis;
     Cloud* cloud;
+    Axis* cloud_axis;
 
     // DISPLAY METHODS
+    bool axis_helper_on;
     bool wireframe_on;
     bool fill_on;
     bool smooth_on;
@@ -126,6 +128,9 @@ public:
 
     /* Reset view matrix to default */
     void reset_view();
+
+    /* display or not helper axis */
+    void toggle_axis();
 
     const Cloud* get_cloud() const;
     void set_cloud(Cloud* c);

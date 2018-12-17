@@ -3,9 +3,6 @@
 
 #include <iostream>
 #include "../include/cloud.h"
-#include <Eigen/Dense>
-
-using Eigen::MatrixXd;
 
 Cloud::Cloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
     Ox(_Ox), Oy(_Oy), Oz(_Oz), total_points(_total_points), dmin(_dmin)
@@ -105,7 +102,7 @@ Cloud::compute_gravity_center() const
         );
     }
 
-    return model_matrix() * (gcenter/float(npoints));
+    return gcenter / float(npoints);
 }
 
 std::deque<float>
@@ -114,8 +111,6 @@ Cloud::compute_deviations() const
     std::deque<float> deviations(into_points.size());
     QVector3D gcenter = compute_gravity_center();
     size_t npoints = points_into_cloud();
-
-    std::cerr << gcenter[0] << " " << gcenter[1] << " " << gcenter[2] << std::endl;
 
     for(size_t i=0; i < npoints; ++i){
         size_t idx = (i*3);
@@ -126,7 +121,7 @@ Cloud::compute_deviations() const
             into_points[idx+2]
         );
 
-        p = model_matrix() * p;
+        // p = model_matrix() * p;
 
         deviations[idx+0] = p[0] - gcenter.x();
         deviations[idx+1] = p[1] - gcenter.y();
@@ -136,48 +131,40 @@ Cloud::compute_deviations() const
     return deviations;
 }
 
-std::deque<float>
+MatrixXf
 Cloud::compute_correlation_matrix() const
 {
     std::deque<float> deviations = compute_deviations();
     size_t npoints = points_into_cloud();
 
-    //          | x0, y0, z0 |
-    // matrix   | x1, y1, z1 |
-    //          | x2, y2, z2 |
-    //
-    //          | x0, x1, x2 |
-    // t_matrix | y0, y1, y2 |
-    //          | z0, z1, z2 |
-    std::deque<std::deque<float>> matrix(npoints);
-
-    std::deque<std::deque<float>> t_matrix(3);
-    t_matrix[0] = std::deque<float>(npoints); // x
-    t_matrix[1] = std::deque<float>(npoints); // y
-    t_matrix[2] = std::deque<float>(npoints); // z
-
+    MatrixXf mat(3, npoints);
     for(size_t i=0; i < npoints; ++i){
         size_t idx = (i*3);
-        matrix[i] = std::deque<float>(3);
-        matrix[i][0] = t_matrix[0][i] = deviations[idx+0];
-        matrix[i][1] = t_matrix[1][i] = deviations[idx+1];
-        matrix[i][2] = t_matrix[2][i] = deviations[idx+2];
+        mat(0, long(i)) = deviations[idx+0];
+        mat(1, long(i)) = deviations[idx+1];
+        mat(2, long(i)) = deviations[idx+2];
     }
 
-    std::cerr << matrix.size() << " " << t_matrix[0].size() << std::endl;
+    return mat * mat.transpose();
+}
 
-    // Correlation matrix (out)[3*3] = t_matrix[3*npts] * matrix[npts*3];
-    std::deque<float> out(9);
-    for(size_t i=0; i < 3; ++i){
-        for(size_t j=0; j < 3; ++j){
-            out[(i*3)+j] = 0.0f;
-            for(size_t h=0; h < npoints; ++h){
-                out[(i*3)+j] += (t_matrix[i][h] * matrix[h][j]);
-            }
-        }
-    }
+Axis*
+Cloud::compute_axis() const
+{
+    MatrixXf mat = this->compute_correlation_matrix();
+    std::cerr << " _________________________ " << std::endl;
+    std::cerr << mat << std::endl;
 
-    return out;
+    EigenSolver<MatrixXf> es(mat);
+    auto vec = es.eigenvectors();
+    std::cerr << vec << std::endl;
+
+    return new Axis(
+        compute_gravity_center(),
+        QVector3D(vec.col(0)[0].real(), vec.col(0)[1].real(), vec.col(0)[2].real()),
+        QVector3D(vec.col(1)[0].real(), vec.col(1)[1].real(), vec.col(1)[2].real()),
+        QVector3D(vec.col(2)[0].real(), vec.col(2)[1].real(), vec.col(2)[2].real())
+    );
 }
 
 // Compute determinant of a matrix (3x3)

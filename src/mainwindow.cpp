@@ -64,6 +64,7 @@ MainWindow::connect_signals_and_slots()
     connect(ui->actionQuit, &QAction::triggered, this, &QMainWindow::close);
     connect(ui->button_build, &QPushButton::toggled, this, &MainWindow::on_button_build_pressed);
     connect(ui->action_reset_view, &QAction::triggered, this->ui->viewer, &MeshViewerWidget::reset_view);
+    connect(ui->action_axis_toggle, &QAction::triggered, this->ui->viewer, &MeshViewerWidget::toggle_axis);
 }
 
 void MainWindow::on_button_build_pressed()
@@ -76,17 +77,17 @@ void MainWindow::on_button_build_pressed()
         float(ui->spinbox_dmin->value())
     );
 
-    // Rotation
-    cloud->rotate(float(ui->spinbox_rotation_x->value()), 1.0f, 0.0f, 0.0f);
-    cloud->rotate(float(ui->spinbox_rotation_y->value()), 0.0f, 1.0f, 0.0f);
-    cloud->rotate(float(ui->spinbox_rotation_z->value()), 0.0f, 0.0f, 1.0f);
-
     // Translation
     cloud->translate(
         float(ui->spinbox_center_x->value()),
         float(ui->spinbox_center_y->value()),
         float(ui->spinbox_center_z->value())
     );
+
+    // Rotation
+    cloud->rotate(float(ui->spinbox_rotation_x->value()), 1.0f, 0.0f, 0.0f);
+    cloud->rotate(float(ui->spinbox_rotation_y->value()), 0.0f, 1.0f, 0.0f);
+    cloud->rotate(float(ui->spinbox_rotation_z->value()), 0.0f, 0.0f, 1.0f);
 
     ui->viewer->set_cloud(cloud);
     ui->spinbox_drawn_pts->setValue(int(cloud->points_into_cloud()));

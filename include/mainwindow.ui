@@ -52,7 +52,6 @@
       <property name="title">
        <string>Cloud parameters</string>
       </property>
-
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -504,7 +503,6 @@
         </layout>
        </item>
       </layout>
-
      </widget>
     </item>
    </layout>
@@ -515,7 +513,7 @@
      <x>0</x>
      <y>0</y>
      <width>941</width>
-     <height>23</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -534,7 +532,14 @@
      </property>
      <addaction name="action_reset_view"/>
     </widget>
+    <widget class="QMenu" name="menuAxis_Helper">
+     <property name="title">
+      <string>Axis Helper</string>
+     </property>
+     <addaction name="action_axis_toggle"/>
+    </widget>
     <addaction name="menuView"/>
+    <addaction name="menuAxis_Helper"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDisplay"/>
@@ -575,6 +580,11 @@
   <action name="action_reset_view">
    <property name="text">
     <string>&amp;Reset</string>
+   </property>
+  </action>
+  <action name="action_axis_toggle">
+   <property name="text">
+    <string>Toggle</string>
    </property>
   </action>
  </widget>

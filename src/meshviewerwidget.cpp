@@ -28,6 +28,8 @@ MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     light = nullptr;
     axis = nullptr;
     cloud = nullptr;
+    cloud_axis = nullptr;
+    axis_helper_on = true;
 }
 
 /*
@@ -62,6 +64,11 @@ MeshViewerWidget::~MeshViewerWidget()
     if( cloud != nullptr ){
         delete cloud;
         cloud = nullptr;
+    }
+
+    if( cloud_axis != nullptr ){
+        delete cloud_axis;
+        cloud_axis = nullptr;
     }
 }
 
@@ -217,11 +224,18 @@ MeshViewerWidget::paintGL()
             program->setUniformValue("model", cloud->model_matrix());
             program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
             cloud->show(GL_POINTS);
+
+            if( cloud_axis != nullptr ){
+                program->setUniformValue("model", cloud->model_matrix());
+                cloud_axis->show(GL_LINES);
+            }
         }
 
         // draw axis
-        program->setUniformValue("model", axis->model_matrix());
-        axis->show(GL_LINES);
+        if( axis_helper_on ){
+            program->setUniformValue("model", axis->model_matrix());
+            axis->show(GL_LINES);
+        }
 
         // re-enable light into scene
         light->on(program);
@@ -433,6 +447,13 @@ MeshViewerWidget::reset_view()
     update();
 }
 
+void
+MeshViewerWidget::toggle_axis()
+{
+    axis_helper_on = !axis_helper_on;
+    update();
+}
+
 const Cloud*
 MeshViewerWidget::get_cloud() const
 {
@@ -454,18 +475,12 @@ MeshViewerWidget::set_cloud(Cloud* c)
     cloud->use_unique_color(1.0f, 1.0f, 0.0f);
     cloud->update_buffers(program);
 
-    std::cerr << " ________________________ " << std::endl;
-    std::deque<float> inertia = cloud->compute_correlation_matrix();
-    for(size_t i=0; i < inertia.size(); ++i){
-        std::cerr << inertia[i] << ", ";
-        if( (i+1)%3 == 0 )
-            std::cerr << std::endl;
-    }
+    if( cloud_axis != nullptr )
+        delete cloud_axis;
 
-    std::cerr << "determinant : " << Cloud::compute_determinant(inertia) << std::endl;
-    std::deque<float> eigenvalues = Cloud::eigenvalues(inertia);
-
-    std::cerr << eigenvalues[0] << ", " << eigenvalues[1] << ", " << eigenvalues[2] << std::endl;
+    cloud_axis = cloud->compute_axis();
+    cloud_axis->build(program);
+    cloud_axis->update_buffers(program);
 
     program->release();
     doneCurrent();
