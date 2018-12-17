@@ -25,6 +25,8 @@
 #include "arcball.h"
 #include "cloud.h"
 
+#include <iostream>
+
 typedef std::chrono::steady_clock Clock;
 
 /*
@@ -146,6 +148,14 @@ public:
         cloud->build(program);
         cloud->use_unique_color(1.0f, 1.0f, 0.0f);
         cloud->update_buffers(program);
+
+        std::cerr << " ________________________ " << std::endl;
+        std::deque<float> inertia = cloud->compute_correlation_matrix();
+        for(size_t i=0; i < inertia.size(); ++i){
+            std::cerr << inertia[i] << ", ";
+            if( (i+1)%3 == 0 )
+                std::cerr << std::endl;
+        }
 
         program->release();
         doneCurrent();

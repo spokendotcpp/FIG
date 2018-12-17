@@ -156,29 +156,6 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
-        /*
-        cloud = new EllipsoidCloud(1.0f, 0.8f, 0.4f, 5000);
-        cloud->build(program);
-        cloud->use_unique_color(1.0f, 1.0f, 0.0f);
-        cloud->update_buffers(program);
-        cloud->rotate(45, 1, 0, 1);
-
-        std::cerr << cloud->points_into_cloud() << std::endl;
-        QVector3D gcenter = cloud->compute_gravity_center();
-        std::cerr << gcenter[0] << ", " << gcenter[1] << ", " << gcenter[2] << std::endl;
-        gcenter = cloud->model_matrix() * gcenter;
-        std::cerr << gcenter[0] << ", " << gcenter[1] << ", " << gcenter[2] << std::endl;
-
-        std::deque<float> inertia = cloud->compute_correlation_matrix();
-        for(size_t i=0; i < inertia.size(); ++i){
-            std::cerr << inertia[i] << ", ";
-            if( (i+1)%3 == 0 )
-                std::cerr << std::endl;
-        }
-
-        std::cerr << inertia[0] + inertia[1] + inertia[2] << std::endl;
-        */
-
         program->setUniformValue("wireframe_color", QVector3D(1.0f, 0.0f, 0.0f));
     }
     program->release();
