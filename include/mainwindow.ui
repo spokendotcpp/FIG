@@ -45,84 +45,466 @@
      <widget class="QGroupBox" name="groupBox">
       <property name="maximumSize">
        <size>
-        <width>200</width>
+        <width>180</width>
         <height>16777215</height>
        </size>
       </property>
       <property name="title">
-       <string>Display options</string>
+       <string>Cloud parameters</string>
       </property>
-      <widget class="QLabel" name="label">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>60</y>
-         <width>91</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_2">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>100</y>
-         <width>81</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_3">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>140</y>
-         <width>54</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QTextEdit" name="textEdit">
-       <property name="geometry">
-        <rect>
-         <x>3</x>
-         <y>294</y>
-         <width>201</width>
-         <height>271</height>
-        </rect>
-       </property>
-       <property name="html">
-        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Tutorial : &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_4">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>170</y>
-         <width>54</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
+
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_area">
+           <property name="text">
+            <string>Area:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_ox">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>Ox length: </string>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="singleStep">
+            <double>0.000100000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_oy">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>Oy length: </string>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="singleStep">
+            <double>0.000100000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_oz">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>Oz length: </string>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="singleStep">
+            <double>0.000100000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_center">
+           <property name="text">
+            <string>Center:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_center_x">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>x: </string>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="minimum">
+            <double>-99.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.001000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_center_y">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>y: </string>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="minimum">
+            <double>-99.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.001000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_center_z">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>z: </string>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="minimum">
+            <double>-99.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.001000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_points">
+           <property name="text">
+            <string>Points</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_nb_pts">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="prefix">
+            <string>generated: </string>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinbox_drawn_pts">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::NoButtons</enum>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>into cloud: </string>
+           </property>
+           <property name="maximum">
+            <number>999999999</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_dmin">
+           <property name="prefix">
+            <string>dmin: </string>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>4</number>
+           </property>
+           <property name="singleStep">
+            <double>0.000100000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_rotation">
+           <property name="text">
+            <string>Rotations (degrees):</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_rotation_x">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>X rotation: </string>
+           </property>
+           <property name="minimum">
+            <double>-999999999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>999999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_rotation_y">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>Y rotation: </string>
+           </property>
+           <property name="minimum">
+            <double>-999999999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>999999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinbox_rotation_z">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="prefix">
+            <string>Z rotation: </string>
+           </property>
+           <property name="minimum">
+            <double>-999999999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>999999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_build">
+           <property name="text">
+            <string>BUILD</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="lcd_layout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_fps">
+           <property name="text">
+            <string>FPS :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLCDNumber" name="lcd_fps">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>0</green>
+                 <blue>0</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>0</green>
+                 <blue>0</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>160</red>
+                 <green>162</green>
+                 <blue>162</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::Box</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="digitCount">
+            <number>5</number>
+           </property>
+           <property name="segmentStyle">
+            <enum>QLCDNumber::Flat</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+
      </widget>
     </item>
    </layout>
@@ -136,20 +518,26 @@ p, li { white-space: pre-wrap; }
      <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_render">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>Re&amp;nder</string>
+     <string>Fi&amp;le</string>
     </property>
-    <widget class="QMenu" name="menu_smooth">
-     <property name="title">
-      <string>&amp;Smooth</string>
-     </property>
-     <addaction name="action_phong"/>
-     <addaction name="action_flat"/>
-    </widget>
-    <addaction name="menu_smooth"/>
+    <addaction name="actionQuit"/>
    </widget>
-   <addaction name="menu_render"/>
+   <widget class="QMenu" name="menuDisplay">
+    <property name="title">
+     <string>Display</string>
+    </property>
+    <widget class="QMenu" name="menuView">
+     <property name="title">
+      <string>&amp;View</string>
+     </property>
+     <addaction name="action_reset_view"/>
+    </widget>
+    <addaction name="menuView"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuDisplay"/>
   </widget>
   <action name="actionLoad_OBJ">
    <property name="text">
@@ -177,6 +565,16 @@ p, li { white-space: pre-wrap; }
   <action name="action_flat">
    <property name="text">
     <string>&amp;Flat</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_reset_view">
+   <property name="text">
+    <string>&amp;Reset</string>
    </property>
   </action>
  </widget>

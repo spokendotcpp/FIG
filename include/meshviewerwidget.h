@@ -125,24 +125,34 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
-    /* increase value of Ox */
-    void increaseXValue();
 
-    /* decrease value of Ox */
-    void decreaseXValue();
+    /* INLINE FUNCTIONS */
+    inline
+    const Cloud* get_cloud() const
+    {
+        return cloud;
+    }
 
-    /* increase value of Oy */
-    void increaseYValue();
+    inline
+    void set_cloud(Cloud* c)
+    {
+        if( cloud != nullptr )
+            delete cloud;
 
-    /* decrease value of Oy */
-    void decreaseYValue();
+        cloud = c;
 
-    /* increase value of Oz */
-    void increaseZValue();
+        makeCurrent();
+        program->bind();
 
-    /* decrease value of Oz */
-    void decreaseZValue();
+        cloud->build(program);
+        cloud->use_unique_color(1.0f, 1.0f, 0.0f);
+        cloud->update_buffers(program);
 
+        program->release();
+        doneCurrent();
+        update();
+    }
+    /* ________________ */
 
 
     /* *********************************************** */

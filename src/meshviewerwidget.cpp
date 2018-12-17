@@ -10,6 +10,7 @@
 MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     :QOpenGLWidget(parent)
 {
+    set_frames_per_second(60);
     setMouseTracking(true);
 
     mouse_pressed = false;
@@ -157,11 +158,28 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
-        cloud = new Cloud(0.5f, 1.0f, 1.0f, 10000);
+        /*
+        cloud = new EllipsoidCloud(1.0f, 0.8f, 0.4f, 5000);
         cloud->build(program);
         cloud->use_unique_color(1.0f, 1.0f, 0.0f);
-        cloud->rotate(45, 0, 0, 1); // Rotate our cloud by 45° on Z
         cloud->update_buffers(program);
+        cloud->rotate(45, 1, 0, 1);
+
+        std::cerr << cloud->points_into_cloud() << std::endl;
+        QVector3D gcenter = cloud->compute_gravity_center();
+        std::cerr << gcenter[0] << ", " << gcenter[1] << ", " << gcenter[2] << std::endl;
+        gcenter = cloud->model_matrix() * gcenter;
+        std::cerr << gcenter[0] << ", " << gcenter[1] << ", " << gcenter[2] << std::endl;
+
+        std::deque<float> inertia = cloud->compute_correlation_matrix();
+        for(size_t i=0; i < inertia.size(); ++i){
+            std::cerr << inertia[i] << ", ";
+            if( (i+1)%3 == 0 )
+                std::cerr << std::endl;
+        }
+
+        std::cerr << inertia[0] + inertia[1] + inertia[2] << std::endl;
+        */
 
         program->setUniformValue("wireframe_color", QVector3D(1.0f, 0.0f, 0.0f));
     }
@@ -216,17 +234,21 @@ MeshViewerWidget::paintGL()
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
+        // not working with light
         light->off(program);
+
         // draw cloud points
-        //glPointSize(10);
-        program->setUniformValue("model", cloud->model_matrix());
-        program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
-        cloud->show(GL_POINTS);
-        //glPointSize(1);
+        if( cloud != nullptr ){
+            program->setUniformValue("model", cloud->model_matrix());
+            program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
+            cloud->show(GL_POINTS);
+        }
 
         // draw axis
         program->setUniformValue("model", axis->model_matrix());
         axis->show(GL_LINES);
+
+        // re-enable light into scene
         light->on(program);
     }
     program->release();
@@ -350,37 +372,9 @@ MeshViewerWidget::handle_key_events(QKeyEvent* event)
         update_view();
         break;
 
-    case Qt::Key_A :
-        increaseXValue();
-        cloud->build(program);
-        cloud->update_buffers(program);
 
-
-        std::cerr << "a =  " << cloud->a << std::endl;
-
-        break;
-
-    case Qt::Key_B :
-        increaseYValue();
-        break;
-
-    case Qt::Key_C :
-        increaseZValue();
-        break;
-
-    case Qt::Key_Z :
-        decreaseXValue();
-        break;
-
-    case Qt::Key_N :
-        decreaseYValue();
-        break;
 
     case Qt::Key_V :
-        decreaseZValue();
-        break;
-
-    case Qt::Key_I :
         default_view();
         update_view();
         break;
@@ -455,46 +449,6 @@ void
 MeshViewerWidget::display_fill(bool mode)
 {
     fill_on = mode;
-    update();
-}
-
-void
-MeshViewerWidget::increaseXValue(){
-    cloud->a += 0.5f;
-    update();
-
-}
-
-
-void
-MeshViewerWidget::decreaseXValue(){
-    cloud->a -= 0.5f;
-    update();
-
-}
-
-void
-MeshViewerWidget::increaseYValue(){
-    cloud->b += 0.5f;
-    update();
-}
-
-void
-MeshViewerWidget::decreaseYValue(){
-    cloud->b -= 0.5f;
-    update();
-}
-
-
-void
-MeshViewerWidget::increaseZValue(){
-    cloud->c += 0.5f;
-    update();
-}
-
-void
-MeshViewerWidget::decreaseZValue(){
-    cloud->c -= 0.5f;
     update();
 }
 

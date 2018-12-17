@@ -4,48 +4,75 @@
 #include <iostream>
 #include "../include/cloud.h"
 
-Cloud::Cloud(float _a, float _b, float _c, size_t pts):
-    a(_a), b(_b), c(_c), npoints(pts)
+Cloud::Cloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
+    Ox(_Ox), Oy(_Oy), Oz(_Oz), total_points(_total_points), dmin(_dmin)
 {
-    if( a < 0.0f ) a = 1.0f;
-    if( b < 0.0f ) b = 1.0f;
-    if( c < 0.0f ) c = 1.0f;
+    if( dmin < 0.0f ) dmin = 0.001f;
+    if( Ox < 0.0f )   Ox   = 1.0f;
+    if( Oy < 0.0f )   Oy   = 1.0f;
+    if( Oz < 0.0f )   Oz   = 1.0f;
 }
 
 Cloud::~Cloud()
-{}
+{
+    into_points.clear();
+}
 
 bool
 Cloud::build(QOpenGLShaderProgram* program)
 {
-    GLfloat* positions = new GLfloat[npoints * 3];
-    GLuint* indices = new GLuint[npoints];
-
     // BUILD CLOUD
     std::random_device rd;
     std::default_random_engine re(rd());
 
-    std::uniform_real_distribution<float> Ox{-a, a};
-    std::uniform_real_distribution<float> Oy{-b, b};
-    std::uniform_real_distribution<float> Oz{-c, c};
+    // Generators
+    std::uniform_real_distribution<float> xgen{-Ox, Ox};
+    std::uniform_real_distribution<float> ygen{-Oy, Oy};
+    std::uniform_real_distribution<float> zgen{-Oz, Oz};
 
-    for(size_t i=0; i < npoints; ++i){
+    // Prepare deque to receive information
+    into_points.clear();
 
-        bool on_ellipsoid = false;
-        while( !on_ellipsoid ){
-            float x = Ox(re);
-            float y = Oy(re);
-            float z = Oz(re);
+    for(size_t i=0; i < total_points; ++i){
+        float x = xgen(re);
+        float y = ygen(re);
+        float z = zgen(re);
 
-            // Maths from https://en.wikipedia.org/wiki/Ellipsoid
-            if( (((x*x)/(a*a)) + ((y*y)/(b*b)) + ((z*z)/(c*c))) <= 1.0f ){
-                positions[(i*3)+0] = x;
-                positions[(i*3)+1] = y;
-                positions[(i*3)+2] = z;
-                on_ellipsoid = true;
+        if( into(x, y, z) ){
+            bool distance_ok = true;
+            for(size_t j=0; j < into_points.size(); j+=3){
+                float dist = distance(
+                    x, y, z,
+                    into_points[j+0],
+                    into_points[j+1],
+                    into_points[j+2]
+                );
+
+                if( dist <= dmin ){
+                    distance_ok = false;
+                    break;
+                }
+            }
+
+            if( distance_ok ){
+                into_points.push_back(x);
+                into_points.push_back(y);
+                into_points.push_back(z);
             }
         }
+    }
 
+    // Once we have all the correct points into our shape.
+    // Build datas
+    size_t npoints = into_points.size()/3;
+    GLfloat* positions = new GLfloat[npoints*3];
+    GLuint* indices = new GLuint[npoints];
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        positions[idx+0] = into_points[idx+0];
+        positions[idx+1] = into_points[idx+1];
+        positions[idx+2] = into_points[idx+2];
         indices[i] = GLuint(i);
     }
 
@@ -57,6 +84,140 @@ Cloud::build(QOpenGLShaderProgram* program)
         program->attributeLocation("color"), new GLfloat[npoints*3]);
 
     return initialize(npoints, npoints, 3);
+}
+
+
+QVector3D
+Cloud::compute_gravity_center() const
+{
+    QVector3D gcenter(0.0f, 0.0f, 0.0f);
+    size_t npoints = into_points.size()/3;
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        gcenter += QVector3D(
+            into_points[idx+0],
+            into_points[idx+1],
+            into_points[idx+2]
+        );
+    }
+
+    return gcenter/float(npoints);
+}
+
+std::deque<float>
+Cloud::compute_deviations() const
+{
+    std::deque<float> deviations(into_points.size());
+    QVector3D gcenter = compute_gravity_center();
+    size_t npoints = points_into_cloud();
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        deviations[idx+0] = into_points[idx+0] - gcenter.x();
+        deviations[idx+1] = into_points[idx+1] - gcenter.y();
+        deviations[idx+2] = into_points[idx+2] - gcenter.z();
+    }
+
+    return deviations;
+}
+
+std::deque<float>
+Cloud::compute_correlation_matrix() const
+{
+    std::deque<float> deviations = compute_deviations();
+    size_t npoints = points_into_cloud();
+
+    //          | x0, y0, z0 |
+    // matrix   | x1, y1, z1 |
+    //          | x2, y2, z2 |
+    //
+    //          | x0, x1, x2 |
+    // t_matrix | y0, y1, y2 |
+    //          | z0, z1, z2 |
+    std::deque<std::deque<float>> matrix(npoints);
+
+    std::deque<std::deque<float>> t_matrix(3);
+    t_matrix[0] = std::deque<float>(npoints); // x
+    t_matrix[1] = std::deque<float>(npoints); // y
+    t_matrix[2] = std::deque<float>(npoints); // z
+
+    for(size_t i=0; i < npoints; ++i){
+        size_t idx = (i*3);
+        matrix[i] = std::deque<float>(3);
+        matrix[i][0] = t_matrix[0][i] = deviations[idx+0];
+        matrix[i][1] = t_matrix[1][i] = deviations[idx+1];
+        matrix[i][2] = t_matrix[2][i] = deviations[idx+2];
+    }
+
+    std::cerr << matrix.size() << " " << t_matrix[0].size() << std::endl;
+
+    // Correlation matrix (out)[3*3] = t_matrix[3*npts] * matrix[npts*3];
+    std::deque<float> out(9);
+    for(size_t i=0; i < 3; ++i){
+        for(size_t j=0; j < 3; ++j){
+            out[(i*3)+j] = 0.0f;
+            for(size_t h=0; h < npoints; ++h){
+                out[(i*3)+j] += (t_matrix[i][h] * matrix[h][j]);
+            }
+        }
+    }
+
+    return out;
+}
+
+
+
+// Compute determinant of a matrix
+
+float
+Cloud::compute_determinant(const std::deque<float>& mat) const
+
+{
+    if(mat.size() != 9)
+        return 0;
+
+
+
+    return mat[0]*(mat[4]*mat[8] - mat[5]*mat[7])
+               - mat[1]*(mat[3]*mat[8] - mat[6]*mat[7])
+               + mat[2]*(mat[3]*mat[7] - mat[4]*mat[6]);
+
+
+}
+
+
+
+// Naive test
+bool
+Cloud::into(float x, float y, float z)
+{
+    return (  (x >= -Ox && x <= Ox)
+           && (y >= -Oy && y <= Oy)
+           && (z >= -Oz && z <= Oz) );
+}
+
+// Compute euclidean distance between two 3D points.
+float
+Cloud::distance(float x, float y, float z, float xx, float yy, float zz)
+{
+    return std::sqrt(
+                std::pow(xx-x, 2.0f) +
+                std::pow(yy-y, 2.0f) +
+                std::pow(zz-z, 2.0f));
+}
+
+
+// ELLIPSOID CLOUD CLASS
+EllipsoidCloud::EllipsoidCloud(float _Ox, float _Oy, float _Oz, size_t _total_points, float _dmin):
+    Cloud(_Ox, _Oy, _Oz, _total_points, _dmin)
+{}
+
+// Maths from https://en.wikipedia.org/wiki/Ellipsoid
+bool
+EllipsoidCloud::into(float x, float y, float z)
+{
+    return (((x*x)/(Ox*Ox)) + ((y*y)/(Oy*Oy)) + ((z*z)/(Oz*Oz))) <= 1.0f;
 }
 
 
