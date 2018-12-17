@@ -115,17 +115,9 @@ Cloud::compute_deviations() const
     for(size_t i=0; i < npoints; ++i){
         size_t idx = (i*3);
 
-        QVector3D p(
-            into_points[idx+0],
-            into_points[idx+1],
-            into_points[idx+2]
-        );
-
-        // p = model_matrix() * p;
-
-        deviations[idx+0] = p[0] - gcenter.x();
-        deviations[idx+1] = p[1] - gcenter.y();
-        deviations[idx+2] = p[2] - gcenter.z();
+        deviations[idx+0] = into_points[idx+0] - gcenter.x();
+        deviations[idx+1] = into_points[idx+1] - gcenter.y();
+        deviations[idx+2] = into_points[idx+2] - gcenter.z();
     }
 
     return deviations;
