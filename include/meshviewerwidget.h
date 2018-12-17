@@ -158,6 +158,8 @@ public:
                 std::cerr << std::endl;
         }
 
+        std::cerr << "determinant : " << cloud->compute_determinant(inertia) << std::endl;
+
         program->release();
         doneCurrent();
         update();
