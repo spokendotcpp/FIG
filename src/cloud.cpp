@@ -102,7 +102,7 @@ Cloud::compute_gravity_center() const
         );
     }
 
-    return gcenter/float(npoints);
+    return model_matrix() * (gcenter/float(npoints));
 }
 
 std::deque<float>
@@ -112,11 +112,22 @@ Cloud::compute_deviations() const
     QVector3D gcenter = compute_gravity_center();
     size_t npoints = points_into_cloud();
 
+    std::cerr << gcenter[0] << " " << gcenter[1] << " " << gcenter[2] << std::endl;
+
     for(size_t i=0; i < npoints; ++i){
         size_t idx = (i*3);
-        deviations[idx+0] = into_points[idx+0] - gcenter.x();
-        deviations[idx+1] = into_points[idx+1] - gcenter.y();
-        deviations[idx+2] = into_points[idx+2] - gcenter.z();
+
+        QVector3D p(
+            into_points[idx+0],
+            into_points[idx+1],
+            into_points[idx+2]
+        );
+
+        p = model_matrix() * p;
+
+        deviations[idx+0] = p[0] - gcenter.x();
+        deviations[idx+1] = p[1] - gcenter.y();
+        deviations[idx+2] = p[2] - gcenter.z();
     }
 
     return deviations;
