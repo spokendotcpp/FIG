@@ -18,6 +18,7 @@
 #include <QPushButton>
 
 #include "ui_mainwindow.h"
+#include "cloud.h"
 
 class MainWindow : public QMainWindow
 {
@@ -35,6 +36,9 @@ public:
 
 private:
     void connect_signals_and_slots();
+
+private slots:
+    void on_button_build_pressed();
 };
 
 #endif // MAINWINDOW_H

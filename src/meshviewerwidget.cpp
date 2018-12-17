@@ -8,6 +8,7 @@
 MeshViewerWidget::MeshViewerWidget(QWidget* parent)
     :QOpenGLWidget(parent)
 {
+    set_frames_per_second(60);
     setMouseTracking(true);
 
     mouse_pressed = false;
@@ -155,7 +156,8 @@ MeshViewerWidget::initializeGL()
         axis->build(program);
         axis->update_buffers(program);
 
-        cloud = new EllipsoidCloud(1.0f, 0.8f, 0.4f, 500);
+        /*
+        cloud = new EllipsoidCloud(1.0f, 0.8f, 0.4f, 5000);
         cloud->build(program);
         cloud->use_unique_color(1.0f, 1.0f, 0.0f);
         cloud->update_buffers(program);
@@ -175,6 +177,7 @@ MeshViewerWidget::initializeGL()
         }
 
         std::cerr << inertia[0] + inertia[1] + inertia[2] << std::endl;
+        */
 
         program->setUniformValue("wireframe_color", QVector3D(1.0f, 0.0f, 0.0f));
     }
@@ -209,7 +212,7 @@ MeshViewerWidget::paintGL()
 {
     long mcs = MeshViewerWidget::microseconds_diff(Clock::now(), lap);
 
-    if( mcs < (frequency-300) ){
+    if( mcs < frequency ){
         std::this_thread::sleep_for(
             std::chrono::microseconds(frequency - mcs)
         );
@@ -229,17 +232,21 @@ MeshViewerWidget::paintGL()
         program->setUniformValue("view", view);
         program->setUniformValue("view_inverse", view.transposed().inverted());
 
+        // not working with light
         light->off(program);
+
         // draw cloud points
-        //glPointSize(10);
-        program->setUniformValue("model", cloud->model_matrix());
-        program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
-        cloud->show(GL_POINTS);
-        //glPointSize(1);
+        if( cloud != nullptr ){
+            program->setUniformValue("model", cloud->model_matrix());
+            program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
+            cloud->show(GL_POINTS);
+        }
 
         // draw axis
         program->setUniformValue("model", axis->model_matrix());
         axis->show(GL_LINES);
+
+        // re-enable light into scene
         light->on(program);
     }
     program->release();

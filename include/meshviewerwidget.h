@@ -125,6 +125,34 @@ public:
     /* Reset view matrix to default */
     void reset_view();
 
+    /* INLINE FUNCTIONS */
+    inline
+    const Cloud* get_cloud() const
+    {
+        return cloud;
+    }
+
+    inline
+    void set_cloud(Cloud* c)
+    {
+        if( cloud != nullptr )
+            delete cloud;
+
+        cloud = c;
+
+        makeCurrent();
+        program->bind();
+
+        cloud->build(program);
+        cloud->use_unique_color(1.0f, 1.0f, 0.0f);
+        cloud->update_buffers(program);
+
+        program->release();
+        doneCurrent();
+        update();
+    }
+    /* ________________ */
+
     /* *********************************************** */
     /* STATIC METHODS */
     /* Difference between two high resolution clock time point as microseconds */
