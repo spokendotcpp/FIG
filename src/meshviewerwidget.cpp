@@ -222,7 +222,6 @@ MeshViewerWidget::paintGL()
         // draw cloud points
         if( cloud != nullptr ){
             program->setUniformValue("model", cloud->model_matrix());
-            program->setUniformValue("model_inverse", cloud->model_matrix().transposed().inverted());
             cloud->show(GL_POINTS);
 
             if( cloud_axis != nullptr ){
